@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 06, 2025 at 02:10 PM
+-- Generation Time: Nov 08, 2025 at 07:11 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -48,9 +48,57 @@ INSERT INTO `barang` (`id`, `barkode`, `name`, `harga_jual`, `harga_beli`, `stok
 (1, 101010, 'pulpen joyko', 3000, 2000, 20, 1, 1, 1, 1),
 (2, 110110, 'penghapus montana', 15000, 13000, 20, 5, 2, 2, 2),
 (3, 101218, 'pensil faber castel', 70000, 68000, 25, 2, 5, 3, 3),
-(4, 101310, 'buku tulis vision', 40000, 38000, 20, 3, 3, 4, 4),
-(5, 101410, 'kertas hvs a4 sidu', 55000, 53000, 25, 4, 4, 5, 5),
-(13, 1232132, 'sepatu', 255000, 195000, 19, 9, 2, 3, 17);
+(4, 101310, 'buku tulis vision', 40000, 38000, 20, 3, 3, NULL, 4),
+(5, 101410, 'kertas hvs a4 sidu', 55000, 53000, 25, 4, 4, NULL, 5),
+(13, 231001, 'sepatu', 255000, 195000, 19, 9, 2, 3, 19);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `detail_beli`
+--
+
+CREATE TABLE `detail_beli` (
+  `id` int NOT NULL,
+  `harga` bigint DEFAULT NULL,
+  `qty` int DEFAULT NULL,
+  `subtotal` bigint DEFAULT NULL,
+  `pembelian_id` int DEFAULT NULL,
+  `barang_id` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `detail_beli`
+--
+
+INSERT INTO `detail_beli` (`id`, `harga`, `qty`, `subtotal`, `pembelian_id`, `barang_id`) VALUES
+(1, 2000, 20, 40000, 1, 1),
+(2, 13000, 10, 130000, 1, 2),
+(3, 68000, 5, 340000, 2, 3);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `detail_jual`
+--
+
+CREATE TABLE `detail_jual` (
+  `id` int NOT NULL,
+  `harga` bigint DEFAULT NULL,
+  `qty` int DEFAULT NULL,
+  `subtotal` bigint DEFAULT NULL,
+  `penjualan_id` int DEFAULT NULL,
+  `barang_id` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `detail_jual`
+--
+
+INSERT INTO `detail_jual` (`id`, `harga`, `qty`, `subtotal`, `penjualan_id`, `barang_id`) VALUES
+(1, 3000, 10, 30000, 1, 1),
+(2, 15000, 5, 75000, 1, 2),
+(3, 70000, 2, 140000, 2, 3);
 
 -- --------------------------------------------------------
 
@@ -100,6 +148,56 @@ INSERT INTO `kustomer` (`id`, `nik`, `name`, `alamat`, `telp`) VALUES
 (3, '6372820008', 'Maisha', 'jl keramat', '081208539835'),
 (4, '6372920009', 'Uwais', 'jl antasan kecil timur', '08128999358'),
 (5, '6373020010', 'Yumna', 'jl gatot subroto', '081294839676');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pembelian`
+--
+
+CREATE TABLE `pembelian` (
+  `id` int NOT NULL,
+  `invoice` int DEFAULT NULL,
+  `total` bigint DEFAULT NULL,
+  `dibayar` bigint DEFAULT NULL,
+  `diskripsi` varchar(255) DEFAULT NULL,
+  `tanggal` date DEFAULT NULL,
+  `supplier_id` int DEFAULT NULL,
+  `user_id` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `pembelian`
+--
+
+INSERT INTO `pembelian` (`id`, `invoice`, `total`, `dibayar`, `diskripsi`, `tanggal`, `supplier_id`, `user_id`) VALUES
+(1, 20251101, 250000, 250000, 'Pembelian alat tulis', '2025-11-01', 1, 1),
+(2, 20251102, 500000, 500000, 'Pembelian barang grosir', '2025-11-02', 2, 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `penjualan`
+--
+
+CREATE TABLE `penjualan` (
+  `id` int NOT NULL,
+  `invoice` int DEFAULT NULL,
+  `total` bigint DEFAULT NULL,
+  `dibayar` bigint DEFAULT NULL,
+  `kembali` bigint DEFAULT NULL,
+  `tanggal` date DEFAULT NULL,
+  `kustomer_id` int DEFAULT NULL,
+  `user_id` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `penjualan`
+--
+
+INSERT INTO `penjualan` (`id`, `invoice`, `total`, `dibayar`, `kembali`, `tanggal`, `kustomer_id`, `user_id`) VALUES
+(1, 20251103, 150000, 150000, 0, '2025-11-03', 1, 1),
+(2, 20251104, 210000, 210000, 0, '2025-11-04', 2, 2);
 
 -- --------------------------------------------------------
 
@@ -192,7 +290,27 @@ INSERT INTO `user` (`id`, `nik`, `username`, `full_name`, `password`, `role`, `p
 -- Indexes for table `barang`
 --
 ALTER TABLE `barang`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `barang_kategori_fk` (`kategori_id`),
+  ADD KEY `barang_satuan_fk` (`satuan_id`),
+  ADD KEY `barang_supplier_fk` (`supplier_id`),
+  ADD KEY `barang_user_fk` (`user_id`);
+
+--
+-- Indexes for table `detail_beli`
+--
+ALTER TABLE `detail_beli`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pembelian_id` (`pembelian_id`),
+  ADD KEY `barang_id` (`barang_id`);
+
+--
+-- Indexes for table `detail_jual`
+--
+ALTER TABLE `detail_jual`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `penjualan_id` (`penjualan_id`),
+  ADD KEY `barang_id` (`barang_id`);
 
 --
 -- Indexes for table `kategori`
@@ -205,6 +323,22 @@ ALTER TABLE `kategori`
 --
 ALTER TABLE `kustomer`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `pembelian`
+--
+ALTER TABLE `pembelian`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `supplier_id` (`supplier_id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `penjualan`
+--
+ALTER TABLE `penjualan`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `kustomer_id` (`kustomer_id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `satuan`
@@ -235,6 +369,18 @@ ALTER TABLE `barang`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
+-- AUTO_INCREMENT for table `detail_beli`
+--
+ALTER TABLE `detail_beli`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `detail_jual`
+--
+ALTER TABLE `detail_jual`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `kategori`
 --
 ALTER TABLE `kategori`
@@ -245,6 +391,18 @@ ALTER TABLE `kategori`
 --
 ALTER TABLE `kustomer`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `pembelian`
+--
+ALTER TABLE `pembelian`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `penjualan`
+--
+ALTER TABLE `penjualan`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `satuan`
@@ -263,6 +421,47 @@ ALTER TABLE `supplier`
 --
 ALTER TABLE `user`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `barang`
+--
+ALTER TABLE `barang`
+  ADD CONSTRAINT `barang_kategori_fk` FOREIGN KEY (`kategori_id`) REFERENCES `kategori` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `barang_satuan_fk` FOREIGN KEY (`satuan_id`) REFERENCES `satuan` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `barang_supplier_fk` FOREIGN KEY (`supplier_id`) REFERENCES `supplier` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `barang_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `detail_beli`
+--
+ALTER TABLE `detail_beli`
+  ADD CONSTRAINT `detail_beli_barang_fk` FOREIGN KEY (`barang_id`) REFERENCES `barang` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `detail_beli_pembelian_fk` FOREIGN KEY (`pembelian_id`) REFERENCES `pembelian` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `detail_jual`
+--
+ALTER TABLE `detail_jual`
+  ADD CONSTRAINT `detail_jual_barang_fk` FOREIGN KEY (`barang_id`) REFERENCES `barang` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `detail_jual_penjualan_fk` FOREIGN KEY (`penjualan_id`) REFERENCES `penjualan` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `pembelian`
+--
+ALTER TABLE `pembelian`
+  ADD CONSTRAINT `pembelian_supplier_fk` FOREIGN KEY (`supplier_id`) REFERENCES `supplier` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `pembelian_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `penjualan`
+--
+ALTER TABLE `penjualan`
+  ADD CONSTRAINT `penjualan_kustomer_fk` FOREIGN KEY (`kustomer_id`) REFERENCES `kustomer` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `penjualan_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
